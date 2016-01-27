@@ -37,7 +37,7 @@
 \usepackage[labelformat=simple]{caption}
 \usepackage{tikz}
 
-\usetikzlibrary{arrows,positioning,calc}
+\usetikzlibrary{arrows,positioning,calc,shapes}
 
 \definecolor{Lightgray}{rgb}{0.9, 0.9, 0.9}
 
@@ -52,10 +52,9 @@
 
 \institute[PLUS] 
 {
-Supervisor: Dipl.-Ing. Nikolaus Augsten, PhD \newline \newline \newline
-University of Salzburg \\ 
-\medskip
-Daniel.Kocher@stud.sbg.ac.at
+Summarizing Talk \newline
+Efficent Algorithms Seminar \newline
+University of Salzburg
 }
 \date{\today}
 
@@ -84,7 +83,7 @@ Daniel.Kocher@stud.sbg.ac.at
     \item{Why not use Bigtable?}
     \begin{itemize}
       \item{Difficult to use for applications with complex, evolving schemas}
-      \item{Only \emph{eventually-consistent} (no strong consistency)}
+      \item{Only \textbf{eventually-consistent} (no strong consistency)}
     \end{itemize}
     \pause
     \item{Why not use Megastore}
@@ -106,7 +105,7 @@ Daniel.Kocher@stud.sbg.ac.at
   \begin{itemize}
     \item{Versioned data is stored in schematized semi-relational tables}
     \item{Each version is automatically timestamped with its commit time}
-    \item{Garbage Collection \& Read at old timestamps}
+    \item{Garbage collection \& reads at old timestamps}
     \item{\textbf{General-purpose transactions}}
     \item{SQL-like query language}
   \end{itemize}
@@ -208,11 +207,11 @@ Daniel.Kocher@stud.sbg.ac.at
       \item{A tablet is a bag of key-value mappings \newline
         \texttt{(key:string, timestamp:int64) $\rightarrow$ string}
       }
-      \item{Timestamp are assigned to data $\Rightarrow$
+      \item{Timestamps are assigned to data $\Rightarrow$
         \textbf{multi-version database}
       }
-      \item{Tablet states are stored on Colossus (successor of the GFS)}
-      \item{Single Paxos state machine on top of each tablet to $\Rightarrow$
+      \item{Tablet states are stored on Colossus}
+      \item{Single Paxos state machine on top of each tablet $\Rightarrow$
         \textbf{Replication}
       }
       \item{Set of replicas is called \textbf{Paxos group}}
@@ -232,7 +231,7 @@ Daniel.Kocher@stud.sbg.ac.at
         \item{One participant group is chosen as \textbf{coordinator}}
         \item{Participant leader of this group: \textbf{coordinator leader}}
       \end{itemize}
-      \item{State of each Transaction manager is stored in Paxos group}
+      \item{State of each transaction manager is stored in Paxos group}
     \end{itemize}
   }
   \pause
@@ -249,13 +248,13 @@ Daniel.Kocher@stud.sbg.ac.at
 \subsection{Directories \& Placement}
 \begin{frame}
   \frametitle{Directories \& Placement}
-  \only<1-4>{
+  \only<1-3>{
     \begin{itemize}
       \item{\textbf{Directories:}}
       \begin{itemize}
         \item{Bucketing abstraction on top of key-value mappings}
         \item{Contain set of contiguous keys sharing common prefix}
-        \item{Prefix allows to control locality of data}
+        \item{Control locality of data}
         \item{Unit of data placement (same replication configuration)}
         \item{Smallest unit to specify geographic-replication properties (\textbf{placement})}
       \end{itemize}
@@ -270,11 +269,10 @@ Daniel.Kocher@stud.sbg.ac.at
         \item{Number \& types of replicas}
         \item{Geographic placement of replicas}
       \end{enumerate}
-      \pause
       \item{\textbf{Movedir:} background task to move directories}
     \end{itemize}
   }
-  \only<5>{
+  \only<4>{
     \begin{figure}
       \centering
       \includegraphics[width=.6\textwidth]{figures/directories.png}
@@ -302,17 +300,21 @@ Daniel.Kocher@stud.sbg.ac.at
     \end{itemize}
   }
   \only<2>{
+    \begin{itemize}
+      \item{Databases must be partitioned in one or more hierarchies}
+      \item{\textbf{Directory table}: table at the top}
+      \item{Directory contains ordered rows starting at a directory table key}
+      \item{Interleaving tables to form directories is significant}
+      \item{Locality relationships between multiple tables $\Rightarrow$ good
+        performance
+      }
+    \end{itemize}
+
     \begin{figure}
       \centering
       \includegraphics[width=.5\textwidth]{figures/interleaving-example.png}
       \caption{Interleaving example}
     \end{figure}
-    \begin{itemize}
-      \item{Interleaving of tables to form directories is significant}
-      \item{Locality relationships between multiple tables $\Rightarrow$ good
-        performance
-      }
-    \end{itemize}
   }
 \end{frame}
 
@@ -346,6 +348,21 @@ Daniel.Kocher@stud.sbg.ac.at
     \end{center}
   }
   \only<2>{
+    \begin{itemize}
+      \item{Time references: GPS and atomic clocks}
+      \item{Set of \textbf{time master} machines per datacenter}
+      \item{\textbf{Armageddon masters}: masters using atomic clocks}
+      \item{\textbf{Timeslave daemon} on each machine}
+      \pause
+      \item{Masters compare their time references regularly}
+      \item{Daemons poll a variety of masters (liar detection)}
+      \pause
+      \item{$\epsilon$ is the instantaneous error bound (typically 1 - 7ms)}
+      \item{$\overline{\epsilon}$ is the average error bound (typically 4ms)}
+      \item{$\epsilon$ is derived from applied worst-case local clock drift ($200\mu s/sec$)}
+    \end{itemize}
+  }
+  \only<3>{
     \begin{figure}
       \centering
       \begin{tikzpicture}[thick]
@@ -360,7 +377,8 @@ Daniel.Kocher@stud.sbg.ac.at
         \node[above = 0.5 of right-bound] (right-bound-top) {};
         \node[below = 0.5 of right-bound] (right-bound-bottom) {};
 
-        \draw[blue!35, fill=blue!35] (left-bound-top.center) rectangle (right-bound-bottom.center);
+        \draw[blue!35, fill=blue!35] (left-bound-top.center) rectangle
+          (right-bound-bottom.center);
         \node (two-e-invis) at ($(left-bound.south)!0.5!(right-bound.south)$) {};
         \node[below = 0 of two-e-invis.center] (two-e-t) {$2\epsilon$};
         \draw[->] (left-end.center) -- (right-end.center) node[right] {t};
@@ -377,25 +395,9 @@ Daniel.Kocher@stud.sbg.ac.at
         \node[below = 0.75 of right-bound] (right-bound-e) {};
 
         \draw[<->] (left-bound-e.center) -- (right-bound-e.center);
-        %\node[below right= 1 and 2.5 of left] {$2\epsilon$};
       \end{tikzpicture}
       \caption{Visualization of $TT.now()$ and $\epsilon$}
     \end{figure}
-  }
-  \only<3>{
-    \begin{itemize}
-      \item{Time references: GPS and atomic clocks (different failure modes)}
-      \item{Set of \textbf{time master} machines per datacenter}
-      \item{\textbf{Armageddon masters}: masters using atomic clocks}
-      \item{\textbf{timeslave daemon} per machine}
-      \pause
-      \item{Masters compare their time references regularly}
-      \item{Daemons poll a variety of masters (liar detection)}
-      \pause
-      \item{$\epsilon$ is the instantaneous error bound (typically 1 - 7ms)}
-      \item{$\overline{\epsilon}$ is the average error bound (typically 4ms)}
-      \item{$\epsilon$ is derived from applied worst-case local clock drift ($200\mu s/sec$)}
-    \end{itemize}
   }
 \end{frame}
 
@@ -444,7 +446,9 @@ Daniel.Kocher@stud.sbg.ac.at
     \item{RO transactions}
     \begin{itemize}
       \item{must predeclare to not include writes}
-      \item{can proceed on any sufficiently up-to-date-replica (also snapshot reads)}
+      \item{can proceed on any sufficiently up-to-date replica (also snapshot
+        reads)
+      }
     \end{itemize}
   \end{itemize}
 \end{frame}
@@ -471,23 +475,43 @@ Daniel.Kocher@stud.sbg.ac.at
 \subsubsection{Timestamps in RW Transactions}
 \begin{frame}
   \frametitle{Timestamps in RW Transactions}
-  \begin{itemize}
-    \item{Timestamp assignment only in between the two phases (2PL)}
-    \item{\textbf{Monotonicity variant:} \newline
-      Within each Paxos group, Spanner assigns timestamps to Paxos writes in
-      monotonically increasing order, even across leaders
-    }
-    \item{Enforced across leaders by disjointness invariant: \newline
-      Leader must only assign timestamps within the interval of leader lease
-    }
-    \item{Timestamp $s$ assigned $\Rightarrow$ $s_{max} = s$}
-    \item{\textbf{External consistency invariant}: \newline
-      \begin{center}
-        $t_{abs}\left(e^{commit}_1\right) < t_{abs}\left(e^{start}_2\right)$
-        $\Rightarrow s_1 < s_2$
-      \end{center}
-    }
-  \end{itemize}
+  \only<1>{
+    \begin{itemize}
+      \item{Timestamp assignment only in between the two phases (2PL)}
+      \item{\textbf{Monotonicity variant:} \newline
+        Within each Paxos group, Spanner assigns timestamps to Paxos writes in
+        monotonically increasing order, even across leaders
+      }
+      \item{Enforced across leaders by disjointness invariant: \newline
+        Leader must only assign timestamps within the interval of leader lease
+      }
+      \item{Timestamp $s$ assigned $\Rightarrow$ $s_{max} = s$}
+      \item{\textbf{External consistency invariant}: \newline
+        \begin{center}
+          $t_{abs}\left(e^{commit}_1\right) < t_{abs}\left(e^{start}_2\right)$
+          $\Rightarrow s_1 < s_2$
+        \end{center}
+      }
+    \end{itemize}
+  }
+  \only<2>{
+    \begin{itemize}
+      \item{Let $e^{server}_i$ denote the arrival event of commit request for
+        $T_i$
+      }
+      \item{Two rules guarantee the external consistency invariant:}
+      \begin{enumerate}
+        \item{\textbf{Start} \newline
+          Coordinator leader assigns commit timestamp \newline
+          $s_i \geq TT.now().latest$ after $e^{server}_i$
+        }
+        \item{\textbf{Commit Wait} \newline
+          Coordinator leader ensures clients cannot see \newline
+          data commited by $T_i$ until $TT.after(s_i)$ is true
+        }
+      \end{enumerate}
+    \end{itemize}
+  }
 \end{frame}
 
 %-------------------------------------------------------------------------------
@@ -526,32 +550,140 @@ Daniel.Kocher@stud.sbg.ac.at
 \subsubsection{Read-Write Transactions}
 \begin{frame}
   \frametitle{Read-Write Transactions}
-  \begin{itemize}
-    \item{RW transactions buffered at client until Commit}
-    \item{Reads do not see effects of transaction's writes}
-    \item{Client has completed all reads \& buffered all writes $\Rightarrow$ 2PC}
-    \pause
-    \item{Non-coordinator-participant leader}
-    \begin{enumerate}
-      %\item{Acquires write locks}
-      \item{Chooses prepare timestamp according to monotonicity}
-      \item{Logs prepare record through Paxos}
-      \item{Notifies coordinator of its prepare timestamp}
-    \end{enumerate}
-    \pause
-    \item{Coordinator leader}
-    \begin{enumerate}
-      %\item{Aquires write locks}
-      \item{Chooses timestamp for whole transaction}
-      \item{Commit timestamp $s$ must be}
-      \begin{itemize}
-        \item{$\geq$ all prepare timestamps}
-        \item{$> TT.now().latest$ at the time the Commits were received}
-        \item{$>$ any previously assigned timestamp}
-      \end{itemize}
-      \item{Logs Commit record through Paxos}
-    \end{enumerate}
-  \end{itemize}
+  \only<1-3>{
+    \begin{itemize}
+      \item{RW transactions buffered at client until Commit}
+      \item{Reads do not see effects of transaction's writes}
+      \item{Client has completed all reads \& buffered all writes $\Rightarrow$ 2PC}
+      \pause
+      \item{Non-coordinator-participant leader}
+      \begin{enumerate}
+        %\item{Acquires write locks}
+        \item{Chooses prepare timestamp according to monotonicity}
+        \item{Logs prepare record through Paxos}
+        \item{Notifies coordinator of its prepare timestamp}
+      \end{enumerate}
+      \pause
+      \item{Coordinator leader}
+      \begin{enumerate}
+        %\item{Aquires write locks}
+        \item{Chooses timestamp for whole transaction}
+        \item{Commit timestamp $s$ must be}
+        \begin{itemize}
+          \item{$\geq$ all prepare timestamps}
+          \item{$> TT.now().latest$ at the time the Commits were received}
+          \item{$>$ any previously assigned timestamp}
+        \end{itemize}
+        \item{Logs Commit record through Paxos}
+      \end{enumerate}
+    \end{itemize}
+  }
+  \only<4-9>{
+    \begin{figure}
+      \centering
+      \begin{tikzpicture}[thick]
+        \node (left-end-t1) at (0,2) {};
+        \node[right = 9 of left-end-t1] (right-end-t1) {};
+        \draw[ultra thick, ->, >=stealth] (left-end-t1.center) -- (right-end-t1.center)
+          node[right] (right-end-t1-t) {$t$};
+          \node[left = 0 of left-end-t1.west] (left-end-t1-t) {$\mathbf{T_C}$};
+
+        \node[below = 1 of left-end-t1] (left-end-t2) {};
+        \node[right = 9 of left-end-t2] (right-end-t2) {};
+        \draw[->, >=stealth] (left-end-t2.center) -- (right-end-t2.center)
+          node[right] (right-end-t2-t) {$t$};
+        \node[left = 0 of left-end-t2.west] (left-end-t2-t) {$T_2$};
+
+        \node[below = 1 of left-end-t2] (left-end-t3) {};
+        \node[right = 9 of left-end-t3] (right-end-t3) {};
+        \draw[->, >=stealth] (left-end-t3.center) -- (right-end-t3.center)
+          node[right] (right-end-t3-t) {$t$};
+        \node[left = 0 of left-end-t3.west] (left-end-t3-t) {$T_3$};
+
+        \node[right = 0.25 of left-end-t1] (acquire-locks-t1) {};
+        \node[right = 1.05 of left-end-t2] (acquire-locks-t2) {};
+        \node[right = 0.65 of left-end-t3] (acquire-locks-t3) {};
+        \foreach \x in {1, 2, 3}{
+          \draw[blue] (acquire-locks-t\x.center) -- ++(0, -0.25);
+          \draw[blue] (acquire-locks-t\x.center) -- ++(0, 0.25);
+        }
+
+        \node[above = 0.75 of acquire-locks-t1]
+          (acquire-locks-t) {\scriptsize\color{blue}Acquire all locks};
+        \
+
+        \only<5-9>{
+          \foreach \x in {1, 2, 3}{
+            \node[right = -0.1 of acquire-locks-t\x] (compute-s-t\x) {};
+            %\draw (compute-s-t\x.center) -- ++(0, -0.15);
+            %\draw (compute-s-t\x.center) -- ++(0, 0.15);
+          }
+          \node[below = 1 of acquire-locks-t3.center]
+            (compute-s-t) {\scriptsize $s=TT.now()$};
+          \draw[<-, >=stealth, dotted] (compute-s-t1.center) -- ++(0, -3.5);
+          \draw[<-, >=stealth, dotted] (compute-s-t2.center) -- ++(0, -2.25);
+          \draw[<-, >=stealth, dotted] (compute-s-t3.center) -- ++(0, -0.9);
+        }
+        \only<6-9>{
+          \node[right = 1 of compute-s-t2] (start-log-t2) {};
+          \node[right = 1.75 of compute-s-t3] (start-log-t3) {};
+          \node[above = 2 of start-log-t2] (start-log-t)
+            {\scriptsize Start Logging};
+          \draw[<-, >=stealth, dotted] (start-log-t2.center) -- ++(0, 2.25);
+          \draw[<-, >=stealth, dotted] (start-log-t3.center) -- ++(0, 3.5);
+        }
+        \only<7-9>{
+          \node[right = 1 of start-log-t3] (end-log-t3) {};
+          \node[right = 1.75 of start-log-t2] (end-log-t2) {};
+          \node[above = 2 of end-log-t2] (end-log-t)
+            {\scriptsize Logging done};
+          \draw[<-, >=stealth, dotted] (end-log-t2.center) -- ++(0, 2.25);
+          \draw[<-, >=stealth, dotted] (end-log-t3.center) -- ++(0, 3.5);
+          \node[right = 5.5 of compute-s-t1] (compute-s-global) {};
+          \draw[<-, >=stealth, black!50!green] (compute-s-global) ++(-0.1, 0) --
+            (end-log-t3.north east);
+          \draw[<-, >=stealth, black!50!green] (compute-s-global) ++(-0.65, 0) --
+            (end-log-t2.north east);
+          \draw[black!50!green, ultra thick] (compute-s-global.center) -- ++(0, -0.25);
+          \draw[black!50!green, ultra thick] (compute-s-global.center) -- ++(0, 0.25);
+
+          \node[above = 0.25 of compute-s-global] (compute-s-global-t)
+            {\scriptsize\color{black!50!green} Overall $s$};
+          \node[below = 0 of end-log-t3] (prepared-t)
+            {\scriptsize\color{black!50!green}Prepared; Send $s$};
+        }
+        \only<8-9>{
+          \node[right = 0.5 of compute-s-global] (commit-wait-done) {};
+          \node[below = 3.45 of commit-wait-done] (commit-wait-done-t)
+            {\scriptsize Commit Wait done};
+          \draw[<-, >=stealth, dotted] (commit-wait-done.center) -- ++(0, -3.5);
+          \node[right = 0 of commit-wait-done] (release-locks-t1) {};
+          \draw[red] (release-locks-t1.center) -- ++(0, -0.25);
+          \draw[red] (release-locks-t1.center) -- ++(0, 0.25);
+          \node[above right = 0.75 and -0.75 of release-locks-t1]
+            (release-locks-t1-t) {\scriptsize\color{red}Release all locks};
+        }
+        \only<9>{
+          \node[right = -0.15 of release-locks-t1] (notify-t1) {};
+          \node[right = 3.1 of end-log-t2] (notify-t2) {};
+          \node[right = 3.35 of end-log-t3] (notify-t3) {};
+          \foreach \x in {2, 3}{
+            \draw[->, >=stealth, black!50!green] (notify-t1.center) --
+              (notify-t\x.center); 
+          }
+          %\node[below = 0 of notify-t3] (notify-t)
+          %  {\scriptsize\color{black!50!green}Notify participants};
+          \node[right = -0.15 of notify-t2] (release-locks-t2) {};
+          \node[right = -0.15 of notify-t3] (release-locks-t3) {};
+          \draw[red] (release-locks-t2.center) -- ++(0, -0.25);
+          \draw[red] (release-locks-t2.center) -- ++(0, 0.25);
+          \draw[red] (release-locks-t3.center) -- ++(0, -0.25);
+          \draw[red] (release-locks-t3.center) -- ++(0, 0.25);
+        }
+     \end{tikzpicture}
+      \caption{RW transaction illustration}
+    \end{figure}
+  }
 \end{frame}
 
 %-------------------------------------------------------------------------------
