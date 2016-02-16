@@ -79,12 +79,12 @@ To provide all these features, Google designed a novel \emph{TrueTime} API which
 exposes clock uncertainty and enables Spanner to assign commit timestamps to
 transactions which reflect serialization order.
 
-\section{Implementation \tbr}
+\section{Implementation}
 \label{sec:implementation}
 
 A Spanner deployment is referred to as a \emph{universe} which consists of
 multiple zones. A universe has two global components: A \emph{universemaster}
-which, essentially, is a debugging console and shows the status of each zone. A
+which is a debugging console and shows the status of each zone. A
 \emph{placement driver} which automatically moves data between zones due to
 modified replication constraints or load balancing between zones.
 
@@ -98,8 +98,8 @@ For this purpose, each zone contains multiple \emph{location proxies}.
 According to Google, a zone can be seen as a Bigtable server deployment. The set
 of zones also determines the locations across which the data can be replicated.
 One can also think of a zone as geographically wide-spread locations, e.g.
-continents. Using such a physical isolation, Spanner is resistent to events which
-affect large areas, e.g. natural disasters or war. Hence, a well-configured
+continents. Using this kind of physical isolation, Spanner is resistent to events
+which affect large areas, e.g. natural disasters or war. Hence, a well-configured
 Spanner deployment is available almost all the time.
 Figure~\ref{subfig:spanner-universe} illustrates the organization of a Spanner
 universe.
