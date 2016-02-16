@@ -368,13 +368,13 @@ satisfies this bound.
   \label{tbl:reads-writes}
 \end{table}
 
-\subsection{Paxos Leader Leases \tbr}
+\subsection{Paxos Leader Leases}
 \label{subsec:paxos-leader-leases}
 
 The Paxos implementation of Spanner is designed for long-lived leaderships. As
 usual in Paxos implementations, a leader is elected by a quorum of lease votes.
 If a machine receives such a quorum of lease votes, it gets a lease (10 seconds
-by default). The lease vote of a replica is extended automatically on successul
+by default). The lease vote of a replica is extended automatically on successful
 writes.
 
 Spanner enforces a \emph{disjointness invariant} such that for each Paxos group,
