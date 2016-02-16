@@ -40,39 +40,40 @@
 
 \maketitle
 
-\section{Introduction \tbr}
+\section{Introduction}
 \label{sec:introduction}
 
 In the original paper~\cite{Corbett:2012}, Google introduced a
 globally-distributed database referred to as \emph{Spanner}. This system is based
-upon Paxos~\cite{Lamport:1998} state machines on machines spread across multiple
-datacenters across the world. This global replication guarantees high availability
-and also implies some desirable locality properties which benefit the performance.
+upon Paxos~\cite{Lamport:1998} state machines running on machines spread across
+multiple datacenters across the world. This global replication guarantees high
+availability and also implies some desirable locality properties which benefit
+the performance.
 
 Google already has two other highly scalable distributed databases, i.e.
 Bigtable~\cite{Chang:2008} and Megastore~\cite{Baker:2011}. Hence, there must be
 a reason, why they did not just use one of these but implemented another
 distributed database. According to Google, it is difficult for applications/users
-to deal with complex and evolving schemas. Moreover, Bigtable only guarantees to
-be eventually-consistent. In contrast, Spanner provides much stronger consistency
-guarantees. On the other hand, Megastore suffers from poor write throughput even
-though it is used for many applications.
+to deal with complex and evolving schemas in Bigtable. Moreover, Bigtable only
+guarantees to be eventually-consistent. In contrast, Spanner provides much
+stronger consistency guarantees. On the other hand, Megastore suffers from poor
+write throughput even though many applications use it.
 
-Therefore, Google decided to introduce another distributed, highly available
-database system which evolved from a key-value store somehow similar to the one
-used by Bigtable (but we will see that this is only partially correct). A core
-feature provided by Spanner are so-called \emph{externally-consistent} distributed
-general-purpose transactions. Of course, Spanner also provides an SQL-like query
-language to enable applications/users to interact with Spanner in a well-known
-way. The data is stored in schematized \emph{semi-relational} tables and the data
-is versioned automatically. Google also implemented a garbage collection to deal
-with old data. The replication can be dynamically configured in order to control
-the locality of the replicas. This is useful to control write and read latency
-as well as availability. Another main contribution of Spanner are
-\emph{globally-consistent} reads at a specific timestamp. This and
-externally-consistent reads and writes enable Spanner to provide a special type
-of transaction, so-called \emph{schema-change} transactions, which provides atomic
-schema changes without locking the whole database and all ongoing transactions.
+Therefore, Google decided to introduce another distributed, highly available and
+scalable database system which evolved from a key-value store somehow similar to
+the one used in Bigtable (but we will see that this is only partially correct).
+A core feature provided by Spanner are so-called \emph{externally-consistent}
+distributed general-purpose transactions. Of course, Spanner also provides an
+SQL-like query language to enable applications/users to interact with Spanner in
+a familiar way. The data is stored in schematized \emph{semi-relational} tables
+and the data is versioned automatically. Google also implemented a garbage
+collection to deal with old data. The replication can be dynamically configured
+in order to control the locality of replicas. This is useful to control write
+and read latency as well as availability. Another main contribution of Spanner
+are high-performance \emph{globally-consistent} reads at a specific timestamp.
+This and externally-consistent reads and writes enable Spanner to provide a
+special type of transaction, so-called \emph{schema-change} transactions, which
+provide atomic schema changes without blocking the whole database.
 
 To provide all these features, Google designed a novel \emph{TrueTime} API which
 exposes clock uncertainty and enables Spanner to assign commit timestamps to
