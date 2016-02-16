@@ -693,71 +693,74 @@ impact because the performance of the processes is close to optimal if the data
 is as local as possible. However, moving processes between datacenters raises
 even more complex problems.
 
-\section{Discussion \tbr}
+\section{Discussion}
 \label{sec:discussion}
 
 The system introduced by Google is definitely impressive because they were able
 to establish a notion of global wall clock time (that's how they call it in their
-presentation) which enabled them to guarantee serialization order for
-globally-distributed transactions. To the best of the author's knowledge, Spanner
+presentation). Global wall clock time enables them to guarantee serialization order
+for globally-distributed transactions. To the best of the author's knowledge, Spanner
 was the first system to provide much stronger consistency and time semantics while
 data is sharded and replicated at global scale. Google also proved all
 '\emph{Relational databases are dead}' people wrong even though systems like
 Bigtable helped creating the NoSQL trend. Reading about a system like Spanner is
 definitely more than a vital sign of relational database systems. From a
 developer's point of view, this is interesting because Spanner provides
-the more intuitive schematized view of tables. In contrast to NOSQL database
-systems, Spanner could be used as replacement for other relational database
+the more intuitive schematized view of tables. In contrast to NoSQL database
+systems, Spanner can be used as replacement for other relational database
 systems, e.g. MySQL, directly. Spanner is also highly flexible to schema changes
-because of the atomic schema change transactions.
+because it supports atomic schema change transactions.
 
 However, I believe that rebuilding a Spanner-like system is difficult for
 small- to mid-sized companies because there is a lot of hardware involved, for
 example all the GPS and atomic clocks. Unless this hardware infrastructure is
-not available it is also hard to reimplement the TrueTime API. Nonetheless,
+available it is hard to reimplement the TrueTime API. Nonetheless,
 companies which need a globally-distributed database with all the guarantees
 Spanner provides are likely to be almost as big as Google. Hence, such companies
-may also be able to build a Spanner-like system. If every datacenter would provide
-GPS and Armageddon time masters independently, the reimplementation of such a
-system would be much easier.
+would also have the resources to build a Spanner-like system. An Open-Source
+reimplementation would only be possible if every datacenter would provide GPS
+and Armageddon time masters on their own.
 
-Another part that may influence the performance of Spanner is the distributed
-file system, i.e. Colossus, the successor of the Google File System (GFS). I did
-not find reliable information about the implementation or the performance of
-Colossus. It is unknown how much impact this distributed file system has on the
+A component that may influence the performance of Spanner is the distributed
+file system, i.e. Colossus, the successor of the Google File System. The internet 
+does not provide reliable information about the implementation or the performance
+of Colossus. It is unknown how much impact this distributed file system has on the
 performance of Spanner. Thus, it is hard to say if a reimplementation of Spanner
-would be able to compete with Spanner's performance.
+would be able to compete with Spanner's performance if a different distributed
+file system is used.
 
-Of course, such a system may also be built upon e.g. the Network Time Protocol
-(NTP). But this would result in poor performance compared to Spanner because the
-error interval would be much larger compared to $2\cdot\epsilon$. And besides
-providing distributed general-purpose transactions, the performance of Spanner
-makes the whole system that impressive. A system using e.g. NTP would never be
-able to achieve this performance while guaranteeing serialization order. Spanner
-can synchronize multiple systems without any communication between these systems.
-NTP-based systems would have to communicate with each other. For systems far apart
-such a system would never be able to compete with Spanner.
+Of course, a distributed database system may also be built upon other concepts,
+e.g. the Network Time Protocol (NTP). But this would result in poor performance
+compared to Spanner because the error interval would be much larger then the one
+used by Spanner, i.e. $2\cdot\epsilon$. And besides providing distributed
+general-purpose transactions, it is the performance of Spanner that impressives
+the most. A system using NTP would never be able to achieve this performance
+while guaranteeing serialization order of transactions. Spanner can synchronize
+multiple systems without any communication between these systems. NTP-based
+systems would have to communicate with each other. For systems far apart such a
+NTP-based solution would never be able to compete with Spanner.
 
-Spanner is robust to GPS blackouts because of the usage ofatomic clocks, even
+Spanner is robust to GPS blackouts because of the usage of atomic clocks, even
 though the performance of Spanner may suffer due to high values of $\epsilon$.
-Would be interesting to see how such a blackout affects Spanner's performance.
+Would be interesting to see how a GPS blackout would affect Spanner's performance.
 
-It would also be interesting how failures of the two singletons per universe,
-i.e. universemaster and placement driver, affect Spanner. Since the universemaster
-is just a debugging console, most probably a failure in this component will not
-affect Spanner at all. This would probably be a totally different story if the
-placement driver does not operate correctly. First of all, there would be no
-load balancing between zones. Hence, zones could be run out of space if the
-placement driver is down long enough. Furthermore, updated replication
-constraints, would not be propagated since the placement driver is responsible
-to move the data if the replication constraints are modified.
+It would also be interesting to know how failures of the two singletons per
+universe, i.e. universemaster and placement driver, would affect Spanner. Since
+the universemaster is just a debugging console, most probably a failure in this
+component will not affect Spanner at all. This would probably be a totally
+different story if the placement driver does not operate correctly. First of all,
+there would be no load balancing between zones. Hence, zones could run out of
+space if the placement driver is down long enough. Furthermore, updated
+replication constraints, would not be propagated since the placement driver is
+responsible to move the data if the replication constraints are modified.
+Therefore I do not understand why there is no redundancy in placement driver.
 
 In terms of applications, applications which read a lot but write rarely or little
 data would benefit the most from a system like Spanner. If an application uses
 lots of replicas which are spread across the globe and writes large amounts of data
-regularly, Spanner may not provide the performance mentioned in the original
-paper. However, Spanner may still outperform both, Megastore and Bigtable while
-providing much stronger consistency guarantees.
+regularly, Spanner may not provide the performance presented in the original
+publication. However, Spanner may still outperform all other distributed database
+systems while providing much stronger consistency guarantees.
 
 %\clearpage
 \bibliographystyle{abbrv}
