@@ -590,23 +590,22 @@ In both cases, the snapshot read at $s_{read}$ can execute on any sufficiently
 up-to-date replica. The leader replicas are only involved in the negotiation
 phase.
 
-
-\subsection{Schema-Change Transactions \tbr}
+\subsection{Schema-Change Transactions}
 \label{subsec:schema-change-transactions}
 
 Schema-change transactions are variants of standard transactions which change
-schemas atomically without blocking the whole system.
+schemas atomically without blocking any other transactions.
 
 There are two phases involved. In the first phase, the \emph{prepare} phase,
 Spanner explicitly assigns a future timestamp to the schema-change transaction.
-In the phase, reads and writes synchronize with any registered schema-change
-timestamp at time $t$. Of course, this concerns only the reads and writes which
-implicitly depend on this schema. Any read/write transaction may proceed if
-its timestamp preceeds $t$. If its timestamp is after $t$, the corresponding
-read/write has to block behind the schema-change transaction. This is essentially
-enabled by the TrueTime API because without TrueTime, it would not be guaranteed
-that the timestamp of the schema-change transaction is in the future.
-
+In the subsequent phase, reads and writes synchronize with any registered
+schema-change timestamp at time $t$. Of course, this affects only reads and
+writes which implicitly depend on the modified schema. Any read/write transaction
+may proceed if its timestamp preceeds $t$. If its timestamp is after $t$, the
+corresponding read/write has to block behind the schema-change transaction. This
+is essentially enabled by the TrueTime API because without TrueTime, it would
+not be guaranteed that the timestamp of the schema-change transaction is in the
+future on every single machine.
 
 \section{Performance \tbr}
 \label{sec:performance}
