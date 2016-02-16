@@ -159,20 +159,21 @@ All keys in a directory share a common prefix.
 A directory is the unit of data placement/movement, hence only whole directories
 are moved between Paxos groups, even across zones. Figure~\ref{subfig:directories}
 illustrates this principle. Directory 2 is moved from Paxos group 1 to Paxos group
-2 and at the same time from zone 2 to zone 3. Google shortly mentions that this
+2 and, at the same time, from zone 2 to zone 3. Google shortly mentions that this
 is an over-simplified view because a directory is split into multiple
-\emph{fragments} if it grows too large. However, Google does not provide more
-details.
+\emph{fragments} if it grows too large. However, Google does not provide any
+additional details.
 
 All the data within a directory has the same replication configuration. As will
 be described later, the concept of directories enables Google to improve the
-performance of Spanner by placing directories in the same Paxos group which are
-frequently accessed together. The fact that in general multiple directories are
-placed in the same Paxos group is another difference between the key-value mapping
-of Spanner and the one used in Bigtable. A Spanner tablet may contain multiple
-contiguous ranges of keys (= directories) as opposed to a Bigtable tablet which
-may only contain one contiguous range of keys. Figure~\ref{fig:comparison-tablets}
-shows an example comparison of the two tablet types.
+performance of Spanner by placing directories which are frequently accessed
+together in the same Paxos group. The fact that in general multiple directories
+are placed in the same Paxos group is another difference between the key-value
+mapping of Spanner and the one used in Bigtable. A Spanner tablet may contain
+multiple contiguous ranges of keys (= directories) as opposed to a Bigtable tablet
+which may only contain one contiguous range of keys.
+Figure~\ref{fig:comparison-tablets} shows an example comparison of the two tablet
+types.
 
 \begin{figure}[ht]
   \centering
@@ -214,7 +215,7 @@ shows an example comparison of the two tablet types.
     \caption{Bigtable tablet}
     \label{subfig:bigtable-tablet}
   \end{subfigure}
-  \caption{Comparison of Spanner's and Bigtable's tablets}
+  \caption{Comparison of Spanner's and Bigtable's tablet}
   \label{fig:comparison-tablets}
 \end{figure}
 
@@ -222,8 +223,8 @@ This partitioning of the row space is critical for the performance of Spanner
 because it allows Google to physically \emph{co-locate} data that is frequently
 accessed together. Therefore, directories are the smallest unit for which an
 application/user can specify geographic-replication properties. An application
-can control replication in two dimension, i.e. the number and types of replicas,
-and, the geographic placement of replicas.
+can control replication in two dimensions, namely the number and types of
+replicas, and the geographic placement of replicas.
 
 \begin{figure}[ht]
   \centering
