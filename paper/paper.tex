@@ -607,7 +607,7 @@ is essentially enabled by the TrueTime API because without TrueTime, it would
 not be guaranteed that the timestamp of the schema-change transaction is in the
 future on every single machine.
 
-\section{Performance \tbr}
+\section{Performance}
 \label{sec:performance}
 
 \begin{table}[ht]
@@ -643,35 +643,36 @@ future on every single machine.
 \end{table}
 
 This section summarizes the core results of the evaluation of Spanner, i.e. the
-latency and throughput performance as well as some results about availability
+latency and throughput performance as well as some results concerning availability
 and the TrueTime API.
 
 Table~\ref{tbl:performance-of-operations} summarizes the latency and throughput
-performance of Spanner. 1D means one replica with commit wait disabled. Hence,
-only write transactions are evaluated because commit wait is only involved in such
-transactions. As we can see, the latency of all transaction types is almost stable
-for an increasing number of replicas whereas the standard deviation decreases.
-The throughput of read-only transaction increases with the number of replicas
-because the number of spanservers increases (in the experiments, the number of
-replicas and the number of spanservers were the same. The throughput of write
+performance of Spanner. 1D means one replica with Commit Wait disabled. Hence,
+only write transactions are evaluated because Commit Wait is not involved in any
+other type of transaction. As we can see, the latency of all transaction types is
+almost stable for an increasing number of replicas whereas the standard deviation
+decreases. The throughput of read-only transactions increases with the number of
+replicas because the number of spanservers increases. In the experiments, the
+number of replicas and the number of spanservers were equal. The throughput of write
 transactions also benefits from this fact. However, the number of write operations
-to perform increases linearly with the number of replicas. Snapshot reads benefit
-the most from the Spanner architecture. The throuhgput of snapshot reads increases
-almost linear with the number of replicas. 
+to perform increases linearly with the number of replicas. This explains why the
+throughput of write transactions does not increase with the number of replicas.
+Snapshot reads benefit the most from the Spanner architecture. The throughput of
+snapshot reads increases almost linearly with the number of replicas. 
 
 The availability of Spanner is only affected if zones containing multiple leaders
-are shut down without notifying the leader upfront. In this case, it takes Spanner
-about 10s to recover full availability. If the leaders are notified to abdicate
-before their zone is shut down, the availability stays almost unaffected. The same
-if true if a zone without a leader is shut down.
+are shut down without notifying the leaders upfront. In this case, it takes Spanner
+about 10s to recover. If the leaders are notified to abdicate before their zone
+is shut down, the availability is almost unaffected. The same is true if a zone
+without a leader is shut down.
 
-Google also provided results for some experiments concerning TrueTime. All
-assumptions Google made when designing Spanner would break if the local clock
-drift would exceed $200\mu$s/sec. But Google found that clock issues are extremely
-infrequent relative to more serious hardware problems, e.g. bad CPUs. Moreover,
-Google provided empirical results on the values of $\epsilon$. Typically,
-$\epsilon$ is never larger than 10ms. It decreases as the network infrastructure
-is improved and increases if time masters go offline.
+Google also provided empirical results about TrueTime. All assumptions Google
+made while designing Spanner would be broken if the local clock drift of a machine
+exceeds $200\mu$s/sec. But Google found that clock issues are extremely infrequent
+relative to more serious hardware problems, e.g. bad CPUs. Moreover, Google
+provided empirical results on the values of $\epsilon$. Typically, $\epsilon$ is
+never larger than 10ms. It decreases as the network infrastructure is improved
+and increases if time masters go offline.
 
 \section{Future Work \tbr}
 \label{sec:future-work}
