@@ -561,7 +561,7 @@ if there exists a distributed transaction which is in between the two phases of
 the two-phase commit because in this case the system does not know if this
 transaction will commit.
 
-\subsection{Read-Only Transactions \tbr}
+\subsection{Read-Only Transactions}
 \label{subsec:read-only-transactions}
 
 Read-only transactions are also lock-free and execute in two phases. In the first
@@ -569,25 +569,26 @@ phase, a timestamp $s_{read}$ is assigned. In the second phase, the read-only
 transaction is executed as a snapshot read at $s_{read}$. Spanner assigns
 the oldest timestamp which preserves external consistency to $s_{read}$.
 
-In general, read-only transactions involve group leaders and they may also involve
-any other replica which is sufficiently up-to-date. Group leaders are involved
-in the negotiation phase. In this phase, all involved Paxos groups negotiate in
-order to determine $s_{read}$. To accomplish this, Spanner requires every
-read-only transaction to define a \emph{scope} expression which summarizes all
-keys that will be read by the respective transaction.
+In general, read-only transactions involve group leaders but they may also involve
+any other sufficiently up-to-date replica in the process. Group leaders are
+involved in the negotiation phase. In this phase, all involved Paxos groups
+negotiate in order to determine $s_{read}$. To accomplish this, Spanner requires
+every read-only transaction to define a \emph{scope} expression which summarizes
+all keys that will be read by the respective transaction.
 
 If all values of the scope can be served by a single Paxos group, the client
 issues the read-only transaction to the corresponding group leader. The group
-leader then assign the timestamp of the last committed write to $s_{read}$ and
+leader then assigns the timestamp of the last committed write to $s_{read}$ and
 executes the transaction.
 
 If serving the values of the scope involves multiple Paxos groups, Spanner avoids
-a negotiation round (which would be one viable options). Instead, Spanner simply
-assigns$TT.now().latest$ to $s_{read}$, even though this may have to wait for
+a negotiation round (which would be a viable option). Instead, Spanner simply
+assigns $TT.now().latest$ to $s_{read}$, even though this may have to wait for
 $t_{safe}$ to advance.
 
-In both cases, the snapshot read executed at $s_{read}$ can execute on any
-replica. The leader replicas are only involved in the negotiation phase.
+In both cases, the snapshot read at $s_{read}$ can execute on any sufficiently
+up-to-date replica. The leader replicas are only involved in the negotiation
+phase.
 
 
 \subsection{Schema-Change Transactions \tbr}
