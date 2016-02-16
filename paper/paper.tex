@@ -537,7 +537,7 @@ transactions only involve the \emph{leader} replicas. Only the leader replicas
 of each participant communicate with the coordinator leader. Hence, no other
 replicas are involved.
 
-\subsection{Snapshot Reads \tbr}
+\subsection{Snapshot Reads}
 \label{subsec:reads-at-timestamp}
 
 In order to provide snapshot reads, we first need to define
@@ -547,17 +547,19 @@ timestamp at which the corresponding replica is up-to-date. Hence, a replica
 satisfies reads at every timestamp $t$ if $t \leq t_{safe}$ holds. Spanner can
 then perform a snapshot read at any replica that is sufficiently up-to-date. As
 a consequence, snapshot reads have the same performance benefits as provided by
-snapshot isolation since they are lock-free. 
+snapshot isolation since they are totally lock-free. 
 
 The safe time is determined by the safe time of a Paxos state machine, denoted
-as $t_{safe}^{Paxos}$, and the safe t ime of the transaction manager, i.e.
+as $t_{safe}^{Paxos}$, and the safe time of the transaction manager, i.e.
 $t_{safe}^{TM}$. The overall safe time of a replica then is the minimum of
-these two. $t_{safe}^{Paxos}$ is simple equal to the time of the highest-applied
-Paxos write because if the Paxos level is reached in the spanserver software stack,
-then the corresponding transaction has already been committed. $t_{safe}^{TM}$
-is $\infty$ if there exist distributed transaction which are in between the two
-phases of two phases of the 2-phase commit because in this case the system does
-not guaranteed that this transaction will commit.
+these two.
+
+$t_{safe}^{Paxos}$ is simply assigned the time of the highest-applied Paxos write
+because if the Paxos level is reached in the spanserver software stack, then the
+corresponding transaction has already been committed. $t_{safe}^{TM}$ is $\infty$
+if there exists a distributed transaction which is in between the two phases of
+the two-phase commit because in this case the system does not know if this
+transaction will commit.
 
 \subsection{Read-Only Transactions \tbr}
 \label{subsec:read-only-transactions}
