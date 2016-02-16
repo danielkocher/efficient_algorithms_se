@@ -124,8 +124,8 @@ universe.
 \subsection{Spanserver Software Stack \tbr}
 \label{subsec:spanserver-software-stack}
 
-Each spanserver also consists of multiple software layers (four at least). At the
-bottom layer, every spanserver is responsible for between 100 and 1,000
+Each spanserver again consists of multiple software layers (four at least). At
+the bottom layer, every spanserver is responsible for between 100 and 1,000
 \emph{tablets}. A tablet is bag of key-value mappings of the form
 \begin{center}
   \texttt{(key:string, timestamp:int64)} $\rightarrow$ \texttt{value}
@@ -137,8 +137,8 @@ file system called \emph{Colossus}, the successor of the Google File
 System~\cite{Ghemawat:2003}.
 
 On top of each tablet, a Paxos state machine is implemented in order to support
-consistent replication. One Paxos state machine is elect as leader. Leases are
-assigned in a long-lived manner (default lease length is 10 seconds). A leader
+consistent replication. One Paxos state machine is elect as leader. Leader leases
+are assigned in a long-lived manner (default lease length is 10 seconds). A leader
 implements three additional layers. A \emph{lock table} which stores the state
 for two-phase locking and therefore implements the concurrency control. On top
 of the lock table, a \emph{transaction manager} is implemented to coordinate
@@ -147,8 +147,7 @@ a \emph{participant leader}. This leader is only utilized if a transaction
 involves multiple Paxos groups (set of replicas). In this case, one of the
 participant groups is chosen as coordinator and the leader of this group is
 referred to as \emph{coordinator leader}.
-Figure~\ref{subfig:spanserver-software-stack} shows the spanserver software stack
-as described before.
+Figure~\ref{subfig:spanserver-software-stack} shows the spanserver software stack.
 
 \subsection{Directories \tbr}
 \label{subsec:directories}
