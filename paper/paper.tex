@@ -324,17 +324,17 @@ synchronize to nonliars.
   \label{tbl:truetime-api}
 \end{table}
 
-\section{Concurrency Control \tbr}
+\section{Concurrency Control}
 \label{sec:concurrency-control}
 
 The TrueTime API allows Spanner to guarantee some correctness properties of the
-implemented concurrency control. This enables the main features in terms of
-transaction, i.e. externally-consistent transactions, lock-free read-only
-transactions and so-called \emph{snapshot reads}. Snapshot reads are non-blocking
-reads in the past at a specific timestamp $t$. Then, Spanner guarantees that
-snapshot reads will see the effects of all transactions committed as of $t$.
+implemented concurrency control. These enable some of the main features, i.e.
+externally-consistent transactions, lock-free read-only transactions and so-called
+\emph{snapshot reads}. Snapshot reads are non-blocking reads in the past at a
+specific timestamp $t$. In this case, Spanner guarantees that snapshot reads will
+see the effects of all transactions committed as of $t$.
 
-Spanner provides different operations as can be seen in
+Spanner provides different operations, as can be seen in
 Table~\ref{tbl:reads-writes}. Read-only transactions have to be made explicit.
 This requires the application/user to predeclare that the read-only transaction
 does not include write operations. Moreover, read-only transaction have the
@@ -364,7 +364,7 @@ satisfies this bound.
     Snapshot Read, client-provided bound & Lock-free & any \tabularnewline
     \hline
   \end{tabular}
-  \caption{Reads and writes in Spanner}
+  \caption{Reads and writes in Spanner.}
   \label{tbl:reads-writes}
 \end{table}
 
