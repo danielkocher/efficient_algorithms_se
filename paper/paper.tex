@@ -243,7 +243,7 @@ replicas, and the geographic placement of replicas.
   \label{fig:directories-and-tables}
 \end{figure}
 
-\subsection{Data Model \tbr}
+\subsection{Data Model}
 \label{subsec:data-model}
 
 There exists another layer on top of the directory-bucketed key-value mappings.
@@ -260,14 +260,15 @@ Therefore, Spanner requires the application/user to partition databases into
 one or more hierarchies of tables. Based on this hierarchical information, Spanner
 builds the directories. A directory contains hierarchically ordered rows from
 all tables of a hierarchy which belong to the same key of the topmost table of
-the hierarchy. Figure~\ref{subfig:interleaved-tables} shows an examples of this
+the hierarchy. Figure~\ref{subfig:interleaved-tables} shows an example of this
 concept. In this example, the \texttt{Users} table is the topmost table of the
 hierarchy and the \texttt{Albums} table is one level below. As we can see, all
-rows of \texttt{Albums} starting with \texttt{1} are located in the same directory
-(\texttt{3365}). This directory has a common prefix, i.e. \texttt{1}, from the
-\texttt{Users} table. The same principle can be seen for key \texttt{2} of the
-\texttt{Users} table. This interleaving of tables exploits locality relationships
-of multiple tables and therefore is significant for Spanner's performance.
+rows of \texttt{Albums} connected to user \texttt{1} are located in the same
+directory (\texttt{3365}). This directory has a common prefix, i.e. \texttt{1},
+from the \texttt{Users} table. The same principle can be seen for key \texttt{2}
+of the \texttt{Users} table. This interleaving of tables exploits locality
+relationships of multiple tables and therefore is significant for Spanner's
+performance.
 
 \section{TrueTime \tbr}
 \label{sec:truetime}
