@@ -384,35 +384,37 @@ It defines a maximum timestamp used by a leader, denoted as $s_{max}$, which is
 advanced by several transactions. A leader must not abdicate before
 $TT.after\left(s_{max}\right)$ has passed.
 
-\subsection{Read-Write Transactions \tbr}
+\subsection{Read-Write Transactions}
 \label{subsec:read-write-transactions}
 
-Read-write transaction use 2-phase locking and Spanner may only assign timestamps
-in between the two phases. Spanner enforces another invariant, i.e. a
+Read-write transactions use two-phase locking and Spanner may only assign
+timestamps in between the two phases. Spanner enforces another invariant, i.e. a
 \emph{monotonicity invariant}, which makes use of the disjointness invariant.
 This monotonicity invariant guarantees that within each Paxos group, Spanner
 assigns timestamps to Paxos writes in monotonically increasing order. To guarantee
 this across leaders, Spanner utilizes the disjointness invariant. This implies
-that leaders must only assign timestamps within the interval of their respective
-leader leases. $s_{max}$ is advanced to $s$ whenever a timestamp $s$ is assigned
-by a leader.
+that a leader must only assign timestamps within the interval of its leader
+lease. $s_{max}$ is advanced to $s$ whenever a timestamp $s$ is assigned by a
+leader.
 
-To guarantee externally-consistent reads and writes, Spanner enforces a
-\emph{external-consistency invariant}. In essence, this invariant guarantees that
+To guarantee externally-consistent reads and writes, Spanner enforces an
+\emph{external consistency invariant}. In essence, this invariant guarantees that
 whenever the commit of a transaction $T_1$, denoted as $e_1^{commit}$, occurs
 before the start of a transaction $T_2$, denoted as $e_2^{start}$, then the commit
-timestamp of $T_1$, denoted as $s_1$, is guaranteed to less than the timestamp
-of $T_2$, denoted as $s_2$. More formally, the following must hold to guarantee
-external consistency:
+timestamp of $T_1$, denoted as $s_1$, is guaranteed to be smaller than the
+timestamp of $T_2$, denoted as $s_2$. More formally, the following must hold to
+guarantee external consistency:
 \begin{center}
-$t_{abs}\left(e_1^{commit}\right) < t_{abs}\left(e_2^{start}\right) \Rightarrow s_1 < s_2$.
+$t_{abs}\left(e_1^{commit}\right) < t_{abs}\left(e_2^{start}\right) \Rightarrow s_1 < s_2$
+\qquad\qquad $t_{abs}(e)$ \ldots absolute time of an event $e$
 \end{center}
 
+\noindent
 Spanner obeys two rules in order to guarantee this invariant:
 \begin{description}
   \item[Start] Coordinator leader for a write $T_i$ assigns a commit timestamp
     $s_i \geq TT.now().latest$, where $TT.now()$ is executed right after the
-    arrival event of commit request for $T_i$.
+    arrival event of the commit request for $T_i$.
   \item[Commit Wait] Coordinator leader ensures that clients cannot see data
     committed by $T_i$ until $TT.after\left(s_i\right)$ is true. This ensures
     that the assigned timestamp $s_i$ is less than the absolute commit time of
@@ -427,12 +429,12 @@ timestamps independently. Every participant logs his timestamp through Paxos and
 after this was done, sends its timestamp to the coordinator leader. The
 coordinator leader then computes an overall timestamp for the transaction. This
 timestamp must be greater than any timestamp the leader has assigned before,
-greater or equal to all timestamps received by the participants and greater than
+greater or equal to all timestamps received from the participants and greater than
 $TT.now().latest$ at the time the coordinator leader received the commit message.
 Then, the computed timestamp is logged by the coordinator leader through Paxos
 but no participants are notified until the commit wait rule is satisfied. After
 commit wait is satisfied, the coordinator leader notifies all other participants
-which can release their locks after receiving the notification.
+which are allowed to release their locks after receiving this notification.
 
 \begin{figure}
   \centering
@@ -526,14 +528,14 @@ which can release their locks after receiving the notification.
     \draw[red] (release-locks-t3.center) -- ++(0, -0.25);
     \draw[red] (release-locks-t3.center) -- ++(0, 0.25);
   \end{tikzpicture}
-  \caption{Read-write transaction}
+  \caption{Timeline of a read-write transaction.}
   \label{fig:read-write-transaction}
 \end{figure}
 
 This also explains why, according to Table~\ref{tbl:reads-writes}, Read-write
-transactions only involve the \emph{leader} replicas. This is because only the
-leader replicas of each participant communicate with the coordinator leader.
-Hence, no other replicas are involved.
+transactions only involve the \emph{leader} replicas. Only the leader replicas
+of each participant communicate with the coordinator leader. Hence, no other
+replicas are involved.
 
 \subsection{Snapshot Reads \tbr}
 \label{subsec:reads-at-timestamp}
