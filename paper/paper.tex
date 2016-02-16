@@ -674,23 +674,24 @@ provided empirical results on the values of $\epsilon$. Typically, $\epsilon$ is
 never larger than 10ms. It decreases as the network infrastructure is improved
 and increases if time masters go offline.
 
-\section{Future Work \tbr}
+\section{Future Work}
 \label{sec:future-work}
 
-Google plans to implement optimistic parallel reads but it turns out that
-implementing this is non-trivial. They also want to support direct configuration
-changes of the Paxos state machines and to reduce $\epsilon$ to be $\leq 1ms$ to
-improve the performance if data is sharded between nearby datacenters.
+Google plans to implement optimistic parallel reads but it turned out that
+implementing it is non-trivial. They also want to support direct configuration
+changes of the Paxos state machines and to reduce $\epsilon$ to be $\leq 1ms$ in
+order to improve the performance if data is sharded between nearby datacenters.
 
-Moreover, the node-local performance can be improved for complex queries. By now,
-node-local data structures are designed for key-value accesses and these could be
-improved by algorithms and data structure from database literature.
+Moreover, the node-local performance could be improved for complex queries. By
+now, node-local data structures are designed for key-value accesses and these data
+structures could be improved by algorithms and data structure from database
+literature.
 
 To improve the performance even further, Google plans to move processes between
-datacenters if the data they operate on is moved. This would have a high impact
-because the performance of the processes is close to optimal if the data is as
-local as possible. However, moving processes between datacenters raises even more
-complex problems.
+datacenters if the data on which they operate is moved. This would have high
+impact because the performance of the processes is close to optimal if the data
+is as local as possible. However, moving processes between datacenters raises
+even more complex problems.
 
 \section{Discussion \tbr}
 \label{sec:discussion}
