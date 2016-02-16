@@ -270,12 +270,12 @@ of the \texttt{Users} table. This interleaving of tables exploits locality
 relationships of multiple tables and therefore is significant for Spanner's
 performance.
 
-\section{TrueTime \tbr}
+\section{TrueTime}
 \label{sec:truetime}
 
 This section describes the key enabler of Spanner, i.e. the novel \emph{TrueTime}
-API. Essentially, this API enables Google to provide timestamps for transactions
-which reflect serialization order.
+API. Essentially, this API enables Google to assign timestamps to distributed
+transactions which reflect serialization order.
 
 TrueTime represents time as a $TTinterval$. A $TTinterval$ is an interval with a
 bounded time uncertainty and has two endpoints, i.e. $earliest$ and $latest$,
@@ -285,20 +285,22 @@ API. However, the most important method is $TT.now()$ which returns a $TTinterva
 which is guaranteed to contain the absolute time of the invocation of $TT.now()$,
 i.e. $TT.now().earliest \leq t_{abs}(e) \leq TT.now().latest$, where $e$ denotes
 the event of invoking $TT.now()$. More precisely, the absolute time of invocation
-of $TT.now()$ is exactly in the middle this $TTinterval$ and spans over
-$2\cdot\epsilon$ where $\epsilon$ denotes the instantaneous error bound. $\epsilon$
-is derived from applied worst-case local clock drift (assumed to be
-$200\mu$s/sec). This instantaneous error bound is adjusted over time for every
-single machine.
+of $TT.now()$ is exactly in the middle this $TTinterval$. The interval itself
+spans over $2\cdot\epsilon$, where $\epsilon$ denotes the instantaneous error
+bound. $\epsilon$ is derived from applied worst-case local clock drift (assumed
+to be $200\mu$s/sec). This instantaneous error bound is adjusted over time for
+every single machine.
 
 TrueTime uses GPS and atomic clocks as time references. Google chose these two
-types of time reference because the failure modes of them are uncorrelated. A
+types of time references because the failure modes of them are uncorrelated. A
 datacenter typically consists of multiple \emph{time master} machines. Most of
 these are GPS receivers with dedicated antennas. All remaining time master
-machines use an atomic clock as reference. The references of all time masters are
-compared against each other on a regular basis. To avoid incorrect time references
-time masters also cross-check their local clock drift against the clock drift of
-the reference. If these differ to much, the time master evicts itself.
+machines use an atomic clock as reference. Machines using an atomic clock as time
+reference are referred to as \emph{Armageddon} masters. The references of all time
+masters are compared against each other on a regular basis. To avoid incorrect
+time references, time masters also cross-check their local clock drift against
+the clock drift of the reference. If these differ too much, the time master evicts
+itself.
 
 Each machine has a \emph{timeslave daemon} installed which polls a variety of
 time masters, mostly GPS masters but also some Armageddon masters. There is also
@@ -315,10 +317,10 @@ synchronize to nonliars.
     \hline
     $TT.after(t)$ & true if $t$ has definitely passed \tabularnewline
     \hline
-    $TT.before(t)$ & true if $t$ has definitely now arrived \tabularnewline
+    $TT.before(t)$ & true if $t$ has definitely not arrived \tabularnewline
     \hline
   \end{tabular}
-  \caption{Methods provided by the TrueTime API}
+  \caption{Methods provided by the TrueTime API.}
   \label{tbl:truetime-api}
 \end{table}
 
@@ -688,7 +690,7 @@ complex problems.
 \section{Discussion \tbr}
 \label{sec:discussion}
 
-The system introduced by Google is definitly impressive because they were able
+The system introduced by Google is definitely impressive because they were able
 to establish a notion of global wall clock time (that's how they call it in their
 presentation) which enabled them to guarantee serialization order for
 globally-distributed transactions. To the best of the author's knowledge, Spanner
@@ -696,8 +698,8 @@ was the first system to provide much stronger consistency and time semantics whi
 data is sharded and replicated at global scale. Google also proved all
 '\emph{Relational databases are dead}' people wrong even though systems like
 Bigtable helped creating the NoSQL trend. Reading about a system like Spanner is
-definitly more than a vital sign of relational database systems. From a
-developer's point of view, this is definitly interesting because Spanner provides
+definitely more than a vital sign of relational database systems. From a
+developer's point of view, this is interesting because Spanner provides
 the more intuitive schematized view of tables. In contrast to NOSQL database
 systems, Spanner could be used as replacement for other relational database
 systems, e.g. MySQL, directly. Spanner is also highly flexible to schema changes
