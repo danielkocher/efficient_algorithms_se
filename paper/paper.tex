@@ -251,10 +251,10 @@ i.e., schematized \emph{semi-relational} tables. This layer is probably the most
 intuitive one for people who are used to common database systems. The data model
 allows applications to create databases in a universe each of which may contain
 an arbitrary number of schematized semi-relational tables. A table has rows,
-columns, and (as a third dimension) versioned values. Spanner's tables are
-semi-relational because rows must have names, i.e., every table must have an
-ordered set of one or more primary-key columns. This is useful for applications
-because the locality of data can be controlled by choosing keys accurately.
+columns, and versioned values. Spanner's tables are semi-relational because rows
+must have names, i.e., every table must have an ordered set of one or more
+primary-key columns. This is useful for applications because the locality of data
+can be controlled by choosing keys accurately.
 
 Therefore, Spanner requires the application/user to partition databases into
 one or more hierarchies of tables. Based on this hierarchical information, Spanner
