@@ -423,8 +423,8 @@ Spanner obeys two rules in order to guarantee this invariant:
 \end{description}
 
 Figure~\ref{fig:read-write-transaction} illustrates the timeline of a distributed
-read-write transaction. There are three participants groups involved, i.e., $P_2$,
-$P_3$ and $P_{CL}$ (which is the coordinator leader). In the first step, all three
+read-write transaction. There are three participants groups involved: $P_2$, $P_3$
+and $P_{CL}$ (which is the coordinator leader). In the first step, all three
 participants acquire their locks and execute $TT.now()$ right afterwards to obtain
 timestamps independently. Every participant logs his timestamp through Paxos and
 after this was done, sends its timestamp to the coordinator leader. The
@@ -654,12 +654,13 @@ other type of transaction. As we can see, the latency of all transaction types i
 almost stable for an increasing number of replicas whereas the standard deviation
 decreases. The throughput of read-only transactions increases with the number of
 replicas because the number of spanservers increases. In the experiments, the
-number of replicas and the number of spanservers were equal. The throughput of write
-transactions also benefits from this fact. However, the number of write operations
-to perform increases linearly with the number of replicas. This explains why the
-throughput of write transactions does not increase with the number of replicas.
-Snapshot reads benefit the most from the Spanner architecture. The throughput of
-snapshot reads increases almost linearly with the number of replicas. 
+number of replicas and the number of spanservers were equal. The throughput of
+write transactions also benefits from this fact. However, the number of write
+operations to be performed increases linearly with the number of replicas. This
+explains why the throughput of write transactions does not increase with the
+number of replicas. Snapshot reads benefit the most from the Spanner architecture.
+The throughput of snapshot reads increases almost linearly with the number of
+replicas.
 
 The availability of Spanner is only affected if zones containing multiple leaders
 are shut down without notifying the leaders upfront. In this case, it takes Spanner
