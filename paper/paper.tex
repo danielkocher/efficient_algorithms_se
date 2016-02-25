@@ -701,10 +701,10 @@ even more complex problems.
 The system introduced by Google is definitely impressive because they were able
 to establish a notion of global wall clock time (that's how they call it in their
 presentation). Global wall clock time enables them to guarantee serialization order
-for globally-distributed transactions. To the best of the author's knowledge, Spanner
-was the first system to provide much stronger consistency and time semantics while
-data is sharded and replicated at global scale. Google also proved all
-'\emph{Relational databases are dead}' people wrong even though systems like
+for globally-distributed transactions. To the best of the author's knowledge,
+Spanner was the first system to provide much stronger consistency and time
+semantics while data is sharded and replicated at global scale. Google also proved
+all '\emph{Relational databases are dead}' people wrong even though systems like
 Bigtable helped creating the NoSQL trend. Reading about a system like Spanner is
 definitely more than a vital sign of relational database systems. From a
 developer's point of view, this is interesting because Spanner provides
@@ -715,7 +715,7 @@ because it supports atomic schema change transactions.
 
 However, I believe that rebuilding a Spanner-like system is difficult for
 small- to mid-sized companies because there is a lot of hardware involved, for
-example all the GPS and atomic clocks. Unless this hardware infrastructure is
+example, all the GPS and atomic clocks. Unless this hardware infrastructure is
 available it is hard to reimplement the TrueTime API. Nonetheless,
 companies which need a globally-distributed database with all the guarantees
 Spanner provides are likely to be almost as big as Google. Hence, such companies
@@ -752,10 +752,11 @@ the universemaster is just a debugging console, most probably a failure in this
 component will not affect Spanner at all. This would probably be a totally
 different story if the placement driver does not operate correctly. First of all,
 there would be no load balancing between zones. Hence, zones could run out of
-space if the placement driver is down long enough. Furthermore, updated
-replication constraints, would not be propagated since the placement driver is
-responsible to move the data if the replication constraints are modified.
-Therefore I do not understand why there is no redundancy in placement driver.
+space if the placement driver is down for an extended period of time. Furthermore,
+updated replication constraints, would not be propagated since the placement
+driver is responsible for moving the data if the replication constraints are
+modified. Therefore, I do not understand why there is no redundancy in placement
+drivers.
 
 In terms of applications, applications which read a lot but write rarely or little
 data would benefit the most from a system like Spanner. If an application uses
