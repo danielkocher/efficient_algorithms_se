@@ -328,26 +328,27 @@ synchronize to nonliars.
 \label{sec:concurrency-control}
 
 The TrueTime API allows Spanner to guarantee some correctness properties of the
-implemented concurrency control. These enable some of the main features, i.e.,
-externally-consistent transactions, lock-free read-only transactions and so-called
-\emph{snapshot reads}. Snapshot reads are non-blocking reads in the past at a
-specific timestamp $t$. In this case, Spanner guarantees that snapshot reads will
+implemented concurrency control. These enable some of the main features:
+externally-consistent transactions, lock-free read-only transactions, and
+so-called \emph{snapshot reads}. Snapshot reads are non-blocking reads in the
+past at a specific timestamp $t$. Spanner guarantees that snapshot reads will
 see the effects of all transactions committed as of $t$.
 
-Spanner provides different operations, as can be seen in
-Table~\ref{tbl:reads-writes}. Read-only transactions have to be made explicit.
-This requires the application/user to predeclare that the read-only transaction
-does not include write operations. Moreover, read-only transaction have the
-benefits of snapshot isolation because they are \emph{lock-free}. Standalone
-writes are simply read-write transaction without any read operations. Non-snapshot
-standalone reads are implemented as read-only transactions. Read-only transactions
-and snapshot reads proceed on any \emph{sufficiently up-to-date} replica. For
-snapshot reads, the application/user has two options. On the one hand, a precise
-timestamp can be specified at which the read should be executed. On the other
-hand, an upper bound can be specified and Spanner choses a timestamp that
-satisfies this bound. 
+Spanner provides different operations, as shown in Table~\ref{tbl:reads-writes}.
+Read-only transactions have to be made explicit. This requires the
+application/user to predeclare that the read-only transaction does not include
+write operations. Moreover, read-only transaction have the benefits of snapshot
+isolation because they are \emph{lock-free}. Standalone writes are simply
+read-write transaction without any read operations. Non-snapshot standalone reads
+are implemented as read-only transactions. In contrast to snapshot reads, which
+may be executed on any timestamp in the past, read-only transactions execute on
+the last committed timestamp. Both, snapshot reads and read-only transactions,
+proceed on any \emph{sufficiently up-to-date} replica. For snapshot reads,
+the application/user has two options. On the one hand, a precise timestamp can
+be specified at which the read should be executed. On the other hand, an upper
+bound can be specified, and Spanner choses a timestamp that satisfies this bound.
 
-\begin{table}
+\begin{table}[ht]
   \centering
   \begin{tabular}{|l||l|l|}
     \hline
@@ -387,8 +388,8 @@ $TT.after\left(s_{max}\right)$ has passed.
 \subsection{Read-Write Transactions}
 \label{subsec:read-write-transactions}
 
-Read-write transactions use two-phase locking and Spanner may only assign
-timestamps in between the two phases. Spanner enforces another invariant, i.e.,
+Read-write transactions use two-phase locking, and Spanner may only assign
+timestamps in between the two phases. Spanner enforces another invariant, the
 a \emph{monotonicity invariant}, which makes use of the disjointness invariant.
 This monotonicity invariant guarantees that within each Paxos group, Spanner
 assigns timestamps to Paxos writes in monotonically increasing order. To guarantee
@@ -399,11 +400,11 @@ leader.
 
 To guarantee externally-consistent reads and writes, Spanner enforces an
 \emph{external consistency invariant}. In essence, this invariant guarantees that
-whenever the commit of a transaction $T_1$, denoted as $e_1^{commit}$, occurs
-before the start of a transaction $T_2$, denoted as $e_2^{start}$, then the commit
-timestamp of $T_1$, denoted as $s_1$, is guaranteed to be smaller than the
-timestamp of $T_2$, denoted as $s_2$. More formally, the following must hold to
-guarantee external consistency:
+whenever the commit of a transaction $T_1$, denoted as $e_1^{commit}$, in real
+time occurs before the start of a transaction $T_2$, denoted as $e_2^{start}$,
+then the commit timestamp of $T_1$, denoted as $s_1$, is guaranteed to be smaller
+than the commit timestamp of $T_2$, denoted as $s_2$. More formally, the following
+must hold to guarantee external consistency:
 \begin{center}
 $t_{abs}\left(e_1^{commit}\right) < t_{abs}\left(e_2^{start}\right) \Rightarrow s_1 < s_2$
 \qquad\qquad $t_{abs}(e)$ \ldots absolute time of an event $e$
@@ -412,9 +413,9 @@ $t_{abs}\left(e_1^{commit}\right) < t_{abs}\left(e_2^{start}\right) \Rightarrow 
 \noindent
 Spanner obeys two rules in order to guarantee this invariant:
 \begin{description}
-  \item[Start] Coordinator leader for a write $T_i$ assigns a commit timestamp
-    $s_i \geq TT.now().latest$, where $TT.now()$ is executed right after the
-    arrival event of the commit request for $T_i$.
+  \item[Start] Coordinator leader for a write transaction $T_i$ assigns a commit
+    timestamp $s_i \geq TT.now().latest$, where $TT.now()$ is executed right after
+    the arrival event of the commit request for $T_i$.
   \item[Commit Wait] Coordinator leader ensures that clients cannot see data
     committed by $T_i$ until $TT.after\left(s_i\right)$ is true. This ensures
     that the assigned timestamp $s_i$ is less than the absolute commit time of
