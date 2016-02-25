@@ -50,7 +50,7 @@ multiple datacenters across the world. This global replication guarantees high
 availability and also implies some desirable locality properties which benefit
 the performance.
 
-Google already has two other highly scalable distributed databases, i.e.
+Google already has two other highly scalable distributed databases, i.e.,
 Bigtable~\cite{Chang:2008} and Megastore~\cite{Baker:2011}. Hence, there must be
 a reason, why they did not just use one of these but implemented another
 distributed database. According to Google, it is difficult for applications/users
@@ -137,15 +137,15 @@ file system called \emph{Colossus}, the successor of the Google File
 System~\cite{Ghemawat:2003}.
 
 On top of each tablet, a Paxos state machine is implemented in order to support
-consistent replication. One Paxos state machine is elect as leader. Leader leases
-are assigned in a long-lived manner (default lease length is 10 seconds). A leader
-implements three additional layers. A \emph{lock table} which stores the state
-for two-phase locking and therefore implements the concurrency control. On top
-of the lock table, a \emph{transaction manager} is implemented to coordinate
+consistent replication. One Paxos state machine is elected as leader. Leader
+leases are assigned in a long-lived manner (default lease length is 10 seconds).
+A leader implements three additional layers. A \emph{lock table} which stores the
+state for two-phase locking and therefore implements the concurrency control. On
+top of the lock table, a \emph{transaction manager} is implemented to coordinate
 distributed transactions. In turn, this transaction manager is used to implement
 a \emph{participant leader}. This leader is only utilized if a transaction
 involves multiple Paxos groups (set of replicas). In this case, one of the
-participant groups is chosen as coordinator and the leader of this group is
+participant groups is chosen as a coordinator and the leader of this group is
 referred to as \emph{coordinator leader}.
 Figure~\ref{subfig:spanserver-software-stack} shows the spanserver software stack.
 
@@ -164,16 +164,33 @@ is an over-simplified view because a directory is split into multiple
 \emph{fragments} if it grows too large. However, Google does not provide any
 additional details.
 
+\begin{figure}[ht]
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width = \textwidth]{figs/directories}
+    \caption{Directories (unit of data movement).~\cite{Corbett:2012}}
+    \label{subfig:directories}
+  \end{subfigure}
+  \qquad
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width = \textwidth]{figs/interleaving-example.png}
+    \caption{Two interleaved tables.~\cite{Corbett:2012}}
+    \label{subfig:interleaved-tables}
+  \end{subfigure}
+  \caption{Directories and interleaved tables.}
+  \label{fig:directories-and-tables}
+\end{figure}
+
 All the data within a directory has the same replication configuration. As will
 be described later, the concept of directories enables Google to improve the
 performance of Spanner by placing directories which are frequently accessed
 together in the same Paxos group. The fact that in general multiple directories
 are placed in the same Paxos group is another difference between the key-value
 mapping of Spanner and the one used in Bigtable. A Spanner tablet may contain
-multiple contiguous ranges of keys (= directories) as opposed to a Bigtable tablet
-which may only contain one contiguous range of keys.
-Figure~\ref{fig:comparison-tablets} shows an example comparison of the two tablet
-types.
+multiple contiguous ranges of keys (= directories) with gaps between contiguous
+ranges as opposed to a Bigtable tablet which may only contain one contiguous key
+range. Figure~\ref{fig:comparison-tablets} shows an example comparison of the two
+tablet types.
 
 \begin{figure}[ht]
   \centering
@@ -223,38 +240,21 @@ This partitioning of the row space is critical for the performance of Spanner
 because it allows Google to physically \emph{co-locate} data that is frequently
 accessed together. Therefore, directories are the smallest unit for which an
 application/user can specify geographic-replication properties. An application
-can control replication in two dimensions, namely the number and types of
+can control replication along two dimensions, namely the number and types of
 replicas, and the geographic placement of replicas.
-
-\begin{figure}[ht]
-  \centering
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width = \textwidth]{figs/directories}
-    \caption{Directories (unit of data movement).~\cite{Corbett:2012}}
-    \label{subfig:directories}
-  \end{subfigure}
-  \qquad
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width = \textwidth]{figs/interleaving-example.png}
-    \caption{Two interleaved tables.~\cite{Corbett:2012}}
-    \label{subfig:interleaved-tables}
-  \end{subfigure}
-  \caption{Directories and interleaved tables.}
-  \label{fig:directories-and-tables}
-\end{figure}
 
 \subsection{Data Model}
 \label{subsec:data-model}
 
-There exists another layer on top of the directory-bucketed key-value mappings.
-This layer is probably the most intuitive one for people who are used to common
-database systems. The data model allows applications to create databases in a
-universe each of which may contain any number of schematized
-\emph{semi-relational} tables. A table has rows, columns and, as a third
-dimension, versioned values. Spanner's tables are semi-relational because rows
-must have names, i.e. every table must have an ordered set of one or more
-primary-key columns. This is useful for applications because the locality of
-data can be controlled by choosing keys accurately.
+There exists another layer on top of the directory-bucketed key-value mappings,
+i.e., schematized \emph{semi-relational} tables. This layer is probably the most
+intuitive one for people who are used to common database systems. The data model
+allows applications to create databases in a universe each of which may contain
+an arbitrary number of schematized semi-relational tables. A table has rows,
+columns, and (as a third dimension) versioned values. Spanner's tables are
+semi-relational because rows must have names, i.e., every table must have an
+ordered set of one or more primary-key columns. This is useful for applications
+because the locality of data can be controlled by choosing keys accurately.
 
 Therefore, Spanner requires the application/user to partition databases into
 one or more hierarchies of tables. Based on this hierarchical information, Spanner
@@ -264,8 +264,8 @@ the hierarchy. Figure~\ref{subfig:interleaved-tables} shows an example of this
 concept. In this example, the \texttt{Users} table is the topmost table of the
 hierarchy and the \texttt{Albums} table is one level below. As we can see, all
 rows of \texttt{Albums} connected to user \texttt{1} are located in the same
-directory (\texttt{3365}). This directory has a common prefix, i.e. \texttt{1},
-from the \texttt{Users} table. The same principle can be seen for key \texttt{2}
+directory (\texttt{3365}). This directory has a common prefix, \texttt{1},
+from the \texttt{Users} table. The same principle applies to key \texttt{2}
 of the \texttt{Users} table. This interleaving of tables exploits locality
 relationships of multiple tables and therefore is significant for Spanner's
 performance.
@@ -273,17 +273,17 @@ performance.
 \section{TrueTime}
 \label{sec:truetime}
 
-This section describes the key enabler of Spanner, i.e. the novel \emph{TrueTime}
+This section describes the key enabler of Spanner, i.e., the novel \emph{TrueTime}
 API. Essentially, this API enables Google to assign timestamps to distributed
 transactions which reflect serialization order.
 
 TrueTime represents time as a $TTinterval$. A $TTinterval$ is an interval with a
-bounded time uncertainty and has two endpoints, i.e. $earliest$ and $latest$,
+bounded time uncertainty and has two endpoints, i.e., $earliest$ and $latest$,
 which are of type $TTstamp$ (which is a timestamp in the context of Spanner).
 Table~\ref{tbl:truetime-api} summarizes the three methods provided by the TrueTime
 API. However, the most important method is $TT.now()$ which returns a $TTinterval$
 which is guaranteed to contain the absolute time of the invocation of $TT.now()$,
-i.e. $TT.now().earliest \leq t_{abs}(e) \leq TT.now().latest$, where $e$ denotes
+i.e., $TT.now().earliest \leq t_{abs}(e) \leq TT.now().latest$, where $e$ denotes
 the event of invoking $TT.now()$. More precisely, the absolute time of invocation
 of $TT.now()$ is exactly in the middle this $TTinterval$. The interval itself
 spans over $2\cdot\epsilon$, where $\epsilon$ denotes the instantaneous error
@@ -328,7 +328,7 @@ synchronize to nonliars.
 \label{sec:concurrency-control}
 
 The TrueTime API allows Spanner to guarantee some correctness properties of the
-implemented concurrency control. These enable some of the main features, i.e.
+implemented concurrency control. These enable some of the main features, i.e.,
 externally-consistent transactions, lock-free read-only transactions and so-called
 \emph{snapshot reads}. Snapshot reads are non-blocking reads in the past at a
 specific timestamp $t$. In this case, Spanner guarantees that snapshot reads will
@@ -388,8 +388,8 @@ $TT.after\left(s_{max}\right)$ has passed.
 \label{subsec:read-write-transactions}
 
 Read-write transactions use two-phase locking and Spanner may only assign
-timestamps in between the two phases. Spanner enforces another invariant, i.e. a
-\emph{monotonicity invariant}, which makes use of the disjointness invariant.
+timestamps in between the two phases. Spanner enforces another invariant, i.e.,
+a \emph{monotonicity invariant}, which makes use of the disjointness invariant.
 This monotonicity invariant guarantees that within each Paxos group, Spanner
 assigns timestamps to Paxos writes in monotonically increasing order. To guarantee
 this across leaders, Spanner utilizes the disjointness invariant. This implies
@@ -422,7 +422,7 @@ Spanner obeys two rules in order to guarantee this invariant:
 \end{description}
 
 Figure~\ref{fig:read-write-transaction} illustrates the timeline of a distributed
-read-write transaction. There are three participants groups involved, i.e. $P_2$,
+read-write transaction. There are three participants groups involved, i.e., $P_2$,
 $P_3$ and $P_{CL}$ (which is the coordinator leader). In the first step, all three
 participants acquire their locks and execute $TT.now()$ right afterwards to obtain
 timestamps independently. Every participant logs his timestamp through Paxos and
@@ -550,7 +550,7 @@ a consequence, snapshot reads have the same performance benefits as provided by
 snapshot isolation since they are totally lock-free. 
 
 The safe time is determined by the safe time of a Paxos state machine, denoted
-as $t_{safe}^{Paxos}$, and the safe time of the transaction manager, i.e.
+as $t_{safe}^{Paxos}$, and the safe time of the transaction manager, i.e.,
 $t_{safe}^{TM}$. The overall safe time of a replica then is the minimum of
 these two.
 
@@ -642,7 +642,7 @@ future on every single machine.
   \label{tbl:performance-of-operations}
 \end{table}
 
-This section summarizes the core results of the evaluation of Spanner, i.e. the
+This section summarizes the core results of the evaluation of Spanner, i.e., the
 latency and throughput performance as well as some results concerning availability
 and the TrueTime API.
 
@@ -722,7 +722,7 @@ reimplementation would only be possible if every datacenter would provide GPS
 and Armageddon time masters on their own.
 
 A component that may influence the performance of Spanner is the distributed
-file system, i.e. Colossus, the successor of the Google File System. The internet 
+file system, i.e., Colossus, the successor of the Google File System. The internet 
 does not provide reliable information about the implementation or the performance
 of Colossus. It is unknown how much impact this distributed file system has on the
 performance of Spanner. Thus, it is hard to say if a reimplementation of Spanner
@@ -732,7 +732,7 @@ file system is used.
 Of course, a distributed database system may also be built upon other concepts,
 e.g. the Network Time Protocol (NTP). But this would result in poor performance
 compared to Spanner because the error interval would be much larger then the one
-used by Spanner, i.e. $2\cdot\epsilon$. And besides providing distributed
+used by Spanner, i.e., $2\cdot\epsilon$. And besides providing distributed
 general-purpose transactions, it is the performance of Spanner that impressives
 the most. A system using NTP would never be able to achieve this performance
 while guaranteeing serialization order of transactions. Spanner can synchronize
@@ -745,7 +745,7 @@ though the performance of Spanner may suffer due to high values of $\epsilon$.
 Would be interesting to see how a GPS blackout would affect Spanner's performance.
 
 It would also be interesting to know how failures of the two singletons per
-universe, i.e. universemaster and placement driver, would affect Spanner. Since
+universe, i.e., universemaster and placement driver, would affect Spanner. Since
 the universemaster is just a debugging console, most probably a failure in this
 component will not affect Spanner at all. This would probably be a totally
 different story if the placement driver does not operate correctly. First of all,
