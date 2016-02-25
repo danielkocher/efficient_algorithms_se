@@ -342,10 +342,10 @@ isolation because they are \emph{lock-free}. Standalone writes are simply
 read-write transaction without any read operations. Non-snapshot standalone reads
 are implemented as read-only transactions. In contrast to snapshot reads, which
 may be executed on any timestamp in the past, read-only transactions execute on
-the last committed timestamp. Both, snapshot reads and read-only transactions,
-proceed on any \emph{sufficiently up-to-date} replica. For snapshot reads,
-the application/user has two options. On the one hand, a precise timestamp can
-be specified at which the read should be executed. On the other hand, an upper
+the last committed write timestamp. Both, snapshot reads and read-only
+transactions, proceed on any \emph{sufficiently up-to-date} replica. For snapshot
+reads, the application/user has two options. On the one hand, a precise timestamp
+can be specified at which the read should be executed. On the other hand, an upper
 bound can be specified, and Spanner choses a timestamp that satisfies this bound.
 
 \begin{table}[ht]
@@ -390,7 +390,7 @@ $TT.after\left(s_{max}\right)$ has passed.
 
 Read-write transactions use two-phase locking, and Spanner may only assign
 timestamps in between the two phases. Spanner enforces another invariant, the
-a \emph{monotonicity invariant}, which makes use of the disjointness invariant.
+\emph{monotonicity invariant}, which makes use of the disjointness invariant.
 This monotonicity invariant guarantees that within each Paxos group, Spanner
 assigns timestamps to Paxos writes in monotonically increasing order. To guarantee
 this across leaders, Spanner utilizes the disjointness invariant. This implies
