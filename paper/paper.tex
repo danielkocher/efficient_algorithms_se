@@ -278,22 +278,22 @@ API. Essentially, this API enables Google to assign timestamps to distributed
 transactions which reflect serialization order.
 
 TrueTime represents time as a $TTinterval$. A $TTinterval$ is an interval with a
-bounded time uncertainty and has two endpoints, i.e., $earliest$ and $latest$,
-which are of type $TTstamp$ (which is a timestamp in the context of Spanner).
+bounded time uncertainty and has two endpoints, $earliest$ and $latest$, which
+are of type $TTstamp$ (a timestamp in the context of Spanner).
 Table~\ref{tbl:truetime-api} summarizes the three methods provided by the TrueTime
-API. However, the most important method is $TT.now()$ which returns a $TTinterval$
-which is guaranteed to contain the absolute time of the invocation of $TT.now()$,
-i.e., $TT.now().earliest \leq t_{abs}(e) \leq TT.now().latest$, where $e$ denotes
-the event of invoking $TT.now()$. More precisely, the absolute time of invocation
-of $TT.now()$ is exactly in the middle this $TTinterval$. The interval itself
-spans over $2\cdot\epsilon$, where $\epsilon$ denotes the instantaneous error
-bound. $\epsilon$ is derived from applied worst-case local clock drift (assumed
-to be $200\mu$s/sec). This instantaneous error bound is adjusted over time for
-every single machine.
+API. However, the most important method is $TT.now()$. i$TT.now()$ which returns
+a $TTinterval$ which is guaranteed to contain the absolute time of the invocation
+of $TT.now()$, i.e., $TT.now().earliest \leq t_{abs}(e) \leq TT.now().latest$,
+where $e$ denotes the event of invoking $TT.now()$. More precisely, the absolute
+time of invocation of $TT.now()$ is exactly in the middle this $TTinterval$. The
+interval itself spans over $2\cdot\epsilon$, where $\epsilon$ denotes the
+instantaneous error bound. $\epsilon$ is derived from applied worst-case local
+clock drift (assumed to be $200\mu$s/sec). This instantaneous error bound is
+adjusted over time for every single machine.
 
 TrueTime uses GPS and atomic clocks as time references. Google chose these two
 types of time references because the failure modes of them are uncorrelated. A
-datacenter typically consists of multiple \emph{time master} machines. Most of
+datacenter typically maintains multiple \emph{time master} machines. Most of
 these are GPS receivers with dedicated antennas. All remaining time master
 machines use an atomic clock as reference. Machines using an atomic clock as time
 reference are referred to as \emph{Armageddon} masters. The references of all time
